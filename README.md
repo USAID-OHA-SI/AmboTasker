@@ -4,7 +4,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of AmboTasker is to log bespoke analyses for the tasker. 
+The goal of AmboTasker is to log bespoke analyses for the tasker. Likely used to make visuals as well. 
 
 
 ---
