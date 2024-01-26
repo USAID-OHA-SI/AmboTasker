@@ -64,51 +64,62 @@
     fill(comp_year) %>%
     mutate(tx_growth_alt = (cumulative/comp_year)) %>%
     ungroup() %>%
-    mutate(fill_color = ifelse(snu_agency == "USAID", hw_midnight_blue, hw_lavender_haze),
+    mutate(snu1 = str_remove(snu1, "Province"),
+           fy_trunc = str_sub(fiscal_year, start = 3) %>% paste0("'", .),
+           fill_color = ifelse(snu_agency == "USAID", hw_midnight_blue, hw_lavender_haze),
            fill_growth = ifelse(tx_growth < 0, hw_tango, hw_hunter),
            y_achv= 3.5e5)
+
+  #limit years
+  df_viz <- df_viz %>%
+    filter(fiscal_year >= metadata$curr_fy -4)
+
 
 # VIZ ---------------------------------------------------------------------
 
   v1 <- df_viz %>%
-    filter(fiscal_year >= metadata$curr_fy -4) %>%
-    ggplot(aes(fiscal_year, targets)) +
-    geom_col(fill = "#626672", alpha = .7) +
-    geom_col(aes(y = cumulative, fill = fill_color)) +
-    geom_errorbar(aes(ymin = targets, ymax = targets), color = "#626672",  alpha = .7) +
+    ggplot(aes(fy_trunc, targets)) +
+    geom_col(fill = "#626672", alpha = .3) +
+    geom_col(aes(y = cumulative), fill = hw_electric_indigo, width = .5) +
+    # geom_col(aes(y = cumulative, fill = fill_color), width = .5) +
     geom_point(aes(y = y_achv, color = achv_color)) +
     facet_grid(~fct_reorder2(snu1, fiscal_year, targets)) +
     scale_y_continuous(labels = label_number(scale_cut = cut_short_scale()),
                        expand = c(.005, .005)) +
     scale_fill_identity() +
     scale_color_identity() +
-    labs(x = NULL, y = NULL,
-         caption = metadata$caption) +
+    coord_cartesian(clip = "off") +
+    labs(x = NULL, y = "TX_CURR") +
     si_style_ygrid() +
-    theme(panel.spacing.x = unit(.5, "lines"))
+    theme(panel.spacing.x = unit(.5, "lines"),
+          strip.text = element_blank())
 
     v2 <- df_viz %>%
-      filter(fiscal_year >= metadata$curr_fy -4) %>%
-      ggplot(aes(fiscal_year, tx_growth, fill = fill_growth)) +
-      geom_col(na.rm = TRUE) +
+      ggplot(aes(fy_trunc, tx_growth, fill = fill_growth)) +
+      geom_col(width = .5, na.rm = TRUE) +
       facet_grid(~fct_reorder2(snu1, fiscal_year, targets)) +
-      scale_y_continuous(labels = label_percent()) +
+      scale_y_continuous(labels = label_percent(),
+                         expand = c(.005, .005)) +
       scale_fill_identity() +
-      labs(x = NULL, y = NULL,
-           caption = metadata$caption) +
+      labs(x = NULL, y = "YoY Growth") +
       si_style_ygrid() +
       theme(panel.spacing.x = unit(.5, "lines"))
 
     v1 / v2 +
-      plot_layout(heights = c(4, 1))
+      plot_layout(heights = c(4, 1)) +
+      plot_annotation(caption = metadata$caption,
+                      title = "ZAMBIA TREATMENT TRENDS FY19-23 BY PROVINCE",
+                      subtitle = "Cumulative/Target Achievement + Year Over Year Cumulative Growth",
+                      theme = si_style_ygrid())
 
-    df_viz %>%
-      filter(fiscal_year >= metadata$curr_fy -4) %>%
-      ggplot(aes(fiscal_year, tx_growth_alt)) +
-      geom_line(na.rm = TRUE) +
-      facet_grid(~fct_reorder2(snu1, fiscal_year, targets)) +
-      # scale_y_continuous(labels = label_percent()) +
-      labs(x = NULL, y = NULL,
-           caption = metadata$caption) +
-      si_style_ygrid()
+    si_save("Graphics/tx_trends.svg")
+
+    # df_viz %>%
+    #   filter(fiscal_year >= metadata$curr_fy -4) %>%
+    #   ggplot(aes(fiscal_year, tx_growth_alt)) +
+    #   geom_line(na.rm = TRUE) +
+    #   facet_grid(~fct_reorder2(snu1, fiscal_year, targets)) +
+    #   labs(x = NULL, y = NULL,
+    #        caption = metadata$caption) +
+    #   si_style_ygrid()
 
