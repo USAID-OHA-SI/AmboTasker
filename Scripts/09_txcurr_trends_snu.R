@@ -105,6 +105,27 @@
       si_style_ygrid() +
       theme(panel.spacing.x = unit(.5, "lines"))
 
+    #alt growth
+    # df_viz %>%
+    #   ggplot(aes(fy_trunc, tx_growth_alt, group = snu1)) +
+    #   geom_line(color = hw_orchid_bloom, na.rm = TRUE) +
+    #   geom_point(shape = 21,  na.rm = TRUE, stroke = 1,
+    #              fill = "white", color = hw_orchid_bloom,
+    #              data = df_viz %>% filter(fiscal_year == 2021)) +
+    #   geom_point(shape = 21,  na.rm = TRUE, stroke = 1,
+    #              fill = hw_orchid_bloom, color = hw_orchid_bloom,
+    #              data = df_viz %>% filter(fiscal_year == metadata$curr_fy)) +
+    #   facet_grid(~fct_reorder2(snu1, fiscal_year, targets)) +
+    #   scale_y_continuous(#labels = label_percent(),
+    #                      expand = c(.005, .005)) +
+    #   labs(x = NULL, y = "Growth",
+    #        #title = "Treatment cohort growth compared to 2021 baseline",
+    #        caption = metadata$caption) +
+    #   si_style_ygrid() +
+    #   theme(panel.spacing.x = unit(.5, "lines"))
+
+
+
     v1 / v2 +
       plot_layout(heights = c(4, 1)) +
       plot_annotation(caption = metadata$caption,
@@ -114,15 +135,7 @@
 
     si_save("Graphics/tx_trends.svg")
 
-    df_viz %>%
-      filter(fiscal_year >= metadata$curr_fy -4) %>%
-      ggplot(aes(fiscal_year, tx_growth_alt)) +
-      geom_line(na.rm = TRUE) +
-      facet_grid(~fct_reorder2(snu1, fiscal_year, targets)) +
-      labs(x = NULL, y = NULL,
-           title = "Treatment cohort growth compared to 2021 baseline",
-           caption = metadata$caption) +
-      si_style_ygrid()
+
 
 
     df_viz %>%
