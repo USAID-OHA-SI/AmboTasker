@@ -4,7 +4,7 @@
 # REF ID:   71d5580e
 # LICENSE:  MIT
 # DATE:     2024-01-25
-# UPDATED:
+# UPDATED:  2024-01-26
 
 # DEPENDENCIES ------------------------------------------------------------
 
@@ -58,13 +58,13 @@
   df_viz <- df_tx %>%
     adorn_achievement() %>%
     group_by(snu1) %>%
-    mutate(comp_year = case_when(fiscal_year == 2019 ~ cumulative),
+    mutate(comp_year = case_when(fiscal_year == 2021 ~ cumulative),
            tx_growth = (cumulative/lag(cumulative, order_by = fiscal_year))-1,
            target_growth = (targets/lag(targets, order_by = fiscal_year))-1) %>%
     fill(comp_year) %>%
     mutate(tx_growth_alt = (cumulative/comp_year)) %>%
     ungroup() %>%
-    mutate(snu1 = str_remove(snu1, "Province"),
+    mutate(snu1 = str_remove(snu1, " Province"),
            fy_trunc = str_sub(fiscal_year, start = 3) %>% paste0("'", .),
            fill_color = ifelse(snu_agency == "USAID", hw_midnight_blue, hw_lavender_haze),
            fill_growth = ifelse(tx_growth < 0, hw_tango, hw_hunter),
@@ -105,6 +105,27 @@
       si_style_ygrid() +
       theme(panel.spacing.x = unit(.5, "lines"))
 
+    #alt growth
+    # df_viz %>%
+    #   ggplot(aes(fy_trunc, tx_growth_alt, group = snu1)) +
+    #   geom_line(color = hw_orchid_bloom, na.rm = TRUE) +
+    #   geom_point(shape = 21,  na.rm = TRUE, stroke = 1,
+    #              fill = "white", color = hw_orchid_bloom,
+    #              data = df_viz %>% filter(fiscal_year == 2021)) +
+    #   geom_point(shape = 21,  na.rm = TRUE, stroke = 1,
+    #              fill = hw_orchid_bloom, color = hw_orchid_bloom,
+    #              data = df_viz %>% filter(fiscal_year == metadata$curr_fy)) +
+    #   facet_grid(~fct_reorder2(snu1, fiscal_year, targets)) +
+    #   scale_y_continuous(#labels = label_percent(),
+    #                      expand = c(.005, .005)) +
+    #   labs(x = NULL, y = "Growth",
+    #        #title = "Treatment cohort growth compared to 2021 baseline",
+    #        caption = metadata$caption) +
+    #   si_style_ygrid() +
+    #   theme(panel.spacing.x = unit(.5, "lines"))
+
+
+
     v1 / v2 +
       plot_layout(heights = c(4, 1)) +
       plot_annotation(caption = metadata$caption,
@@ -114,12 +135,20 @@
 
     si_save("Graphics/tx_trends.svg")
 
-    # df_viz %>%
-    #   filter(fiscal_year >= metadata$curr_fy -4) %>%
-    #   ggplot(aes(fiscal_year, tx_growth_alt)) +
-    #   geom_line(na.rm = TRUE) +
-    #   facet_grid(~fct_reorder2(snu1, fiscal_year, targets)) +
-    #   labs(x = NULL, y = NULL,
-    #        caption = metadata$caption) +
-    #   si_style_ygrid()
 
+
+
+    df_viz %>%
+      filter(fiscal_year >= metadata$curr_fy - 2) %>%
+      group_by(snu1) %>%
+      summarise(avg_tx_growth = mean(tx_growth, na.rm = TRUE),
+                .groups = "drop") %>%
+      arrange(desc(avg_tx_growth))
+
+    df_viz %>%
+      select(snu1, fiscal_year, cumulative) %>%
+      group_by(snu1) %>%
+      mutate(growth_3yr = (cumulative/lag(cumulative, n = 2, order_by = fiscal_year))-1,
+             delta_3yr = cumulative - lag(cumulative, n = 2, order_by = fiscal_year)) %>%
+      filter(fiscal_year == metadata$curr_fy) %>%
+      arrange(desc(growth_3yr))
