@@ -33,6 +33,8 @@
 
   pntdata <- file.path(glamr::si_path("path_vector"), "OU-Sites")
 
+  rwi <- "Data/zmb_relative_wealth_index.csv"
+
   fac_coord_path <- return_latest(folderpath = pntdata, "Zambia - facilities")
 
   # REF ID for plots
@@ -42,6 +44,9 @@
   gophr::get_metadata(file_path)
 
 # LOAD DATA ---------------------------------------------------------------
+
+  df_rwi <- read_csv(rwi) %>%
+    st_as_sf(., coords = c("longitude", "latitude"), crs = 4326)
 
   df_site <- gophr::read_psd(file_path)
 
@@ -104,6 +109,10 @@
          title = "PEPFAR SUPPORTED FACILITIES BY FUNDING AGENCY",
          caption = metadata$caption)
   si_save("Graphics/ZMB_coverage_map_fy23.svg")
+
+  df_rwi %>%
+    ggplot() +
+    geom_sf(aes(fill = rwi))
 
 
 

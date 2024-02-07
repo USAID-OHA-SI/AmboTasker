@@ -112,4 +112,76 @@
   si_save("Graphics/ZMB_tx_gap.svg")
 
 
+# AGE SEX COVERAGE --------------------------------------------------------
+
+  df_agesex <- read_csv("Data/zmb_age_sex_cov.csv", skip = 2)
+
+  df_agesex_long <-
+    df_agesex %>%
+    pivot_longer(cols = 2:13,
+                 names_to = c("age", "sex"),
+                 names_pattern = "^(.+)_(.+)$",
+                 values_to = "coverage") %>%
+    mutate(coverage = gsub("%", "", coverage) %>% as.numeric() / 100) %>%
+    mutate(snu1 = fct_relevel(snu1, snu1_order),
+           alpha_val = ifelse(coverage < .75, 1, 0.75))
+
+  snu1_order <- df_agesex %>% distinct(snu1) %>% pull()
+
+ a <-  df_agesex_long %>%
+    mutate(across(.cols = c(2:3), \(x) gsub("%", "", x) %>% as.numeric()/100)) %>%
+    mutate(snu1_order = fct_reorder(snu1, `_PEPFAR`)) %>%
+    ggplot(aes(x = age, y = snu1_order)) +
+    geom_tile(aes(fill = coverage, alpha = alpha_val), color = "white") +
+    geom_text(aes(label = percent(coverage, 1),
+                  color = ifelse(coverage < 0.75, "white", grey80k)),
+              size = 8/.pt,
+              family = "Source Sans Pro") +
+    si_style_nolines() +
+    facet_wrap(~sex) +
+    scale_x_discrete(position = "top") +
+    scale_y_discrete(lim = rev) +
+    rcartocolor::scale_fill_carto_c(palette = 12, direction = -1, limits = c(0, 1)) +
+    theme(strip.placement = "outside",
+          legend.position = "none") +
+    scale_alpha_continuous(range = c(0.5, 1)) +
+    scale_color_identity() +
+    labs(x = NULL, y = NULL,
+         title = "Casefinding gaps remain among children under 10, adolescents and\nyoung people, and men 25-34 (based on gap to second 95") +
+  coord_fixed()
+
+  b <- df_agesex_long %>%
+    distinct(snu1, `_PEPFAR`, `_MoH`) %>%
+    mutate(across(.cols = c(2:3), \(x) gsub("%", "", x) %>% as.numeric()/100)) %>%
+    mutate(snu1_order = fct_reorder(snu1, `_PEPFAR`)) %>%
+    pivot_longer(2:3,
+                 names_to = "type",
+                 values_to = "coverage") %>%
+    mutate(alpha_val = ifelse(coverage < .75, 1, 0.75)) %>%
+    ggplot(aes(x = type, y = snu1_order)) +
+    geom_tile(aes(fill = coverage, alpha = alpha_val), color = "white") +
+    geom_text(aes(label = percent(coverage, 1),
+                  color = ifelse(coverage < 0.75, "white", grey80k)),
+              size = 8/.pt,
+              family = "Source Sans Pro") +
+    si_style_nolines() +
+    scale_x_discrete(position = "top") +
+    scale_y_discrete(lim = rev) +
+    rcartocolor::scale_fill_carto_c(palette = 12, direction = -1, limits = c(0, 1)) +
+    theme(strip.placement = "outside",
+          legend.position = "none") +
+    scale_alpha_continuous(range = c(0.5, 1)) +
+    scale_color_identity() +
+    labs(x = NULL, y = NULL,
+         title = " \n ") +
+    coord_fixed() +
+    theme(axis.text.y = element_blank())
+
+
+  library(patchwork)
+  a + b
+    si_save("Graphics/ZMB_age_sex_cov.svg")
+
+
+
 
