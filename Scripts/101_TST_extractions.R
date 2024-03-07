@@ -15,6 +15,7 @@
     library(glue)
     library(ggtext)
     library(tameDP)
+    library(openxlsx)
 
 
 
@@ -31,7 +32,11 @@
   # REF ID for plots
     ref_id <- "68555c4c"
 
-  # Functions
+  # Pull out last date modified
+
+    wb <- loadWorkbook(tst_file_path)
+
+    print(wb$
 
 
 # LOAD DATA ============================================================================
