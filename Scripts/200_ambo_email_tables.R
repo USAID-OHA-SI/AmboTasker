@@ -28,11 +28,10 @@
 
   ref_id <- "a0964b89"  #a reference to be places in viz captions
 
-  path_msd <-  si_path() %>% return_latest("PSNU_IM.*Zambia")
-  path_msd2 <- si_path() %>% return_latest("PSNU_IM_FY15")
+  path_msd <-  si_path() %>%
+    return_latest("PSNUByIMs-Zambia-Frozen-2024-04-08")
 
-  meta <- get_metadata(path_msd)  #extract MSD metadata
-  meta2 <- get_metadata(path_msd2)
+  meta <- get_metadata(path_msd)
 
 # Functions
   calc_tx_curr <- function(.data){
@@ -60,17 +59,9 @@
 
 # IMPORT ------------------------------------------------------------------
 
-  df_msd <- read_psd(path_msd)
-  df_msd2 <- read_psd(path_msd2) %>% filter(operatingunit == "Zambia")
-
-
-  #df_tx <- df_msd %>%
-    calc_tx_curr()
-
-  df_tx2 <- df_msd2 %>%
+  df_genie <- read_psd(path_msd) %>%
     filter(fiscal_year > 2015) %>%
     calc_tx_curr() %>%
-    bind_rows(df_msd %>% calc_tx_curr()) %>%
     rowwise() %>%
     mutate(max_val = max(cumulative, targets)) %>%
     ungroup() %>%
@@ -81,10 +72,9 @@
              TRUE ~ 1.15e5
            ))
 
-
 # VIZ ---------------------------------------------------------------------
 
-  df_tx2 %>%
+  df_genie %>%
     ggplot(aes(x = factor(fiscal_year))) +
     geom_blank(aes(y = snu1_limits)) +
     #geom_col(aes(y = targets), position = position_nudge(x = 0.1), fill = grey20k, width = 0.5) +
@@ -102,10 +92,10 @@
          )
 
 # Make a table showing the correct percent achievement
-  min <- min(df_tx2$achievement)
-  max <- max(df_tx2$a)
+  min <- min(df_genie$achievement)
+  max <- max(df_genie$achievement)
 
-  df_tx2 %>%
+  df_genie %>%
     select(snu1, achievement, fiscal_year) %>%
     spread(fiscal_year, achievement) %>%
     arrange(desc(`2024`)) %>%
@@ -117,5 +107,5 @@
     tab_header(title = "HISTORICAL TX_CURR ACHEIVEMENT BY PROVINCE") %>%
     tab_source_note(
       source_note = gt::md(glue::glue("{meta$caption} & {meta$caption} | Ref id: {ref_id} | Created by T. Essam"))) %>%
-    tab_options(source_notes.font.size = px(10))
+    tab_options(source_notes.font.size = px(10), data_row.padding = px(1))
 
