@@ -40,22 +40,6 @@
   # Pull in the value from the image using Excel
 
 
-  # amb_tbl <-  tibble::tribble(
-  #                                  ~SNU1, ~FY20, ~FY21, ~FY22, ~FY23, ~FY24,
-  #                      "Lusaka Province",  0.78,  0.81,  1.01,  1.05,  0.99,
-  #                     "Western Province",  0.87,   0.9,  1.09,  1.05,  0.98,
-  #                     "Eastern Province",  0.88,  0.86,     1,  1.02,  0.97,
-  #                    "Southern Province",  0.81,  0.77,  0.91,  0.96,  0.96,
-  #                    "Muchinga Province",  0.74,  0.83,  0.99,  1.11,  0.93,
-  #                    "Northern Province",  0.77,  0.76,  0.96,  1.05,  0.88,
-  #                     "Central Province",  0.88,  0.87,  0.79,  0.96,  0.86,
-  #                     "Luapula Province",  0.84,  0.69,  0.89,  0.93,  0.85,
-  #                  "Copperbelt Province",  0.81,  0.83,  0.81,  0.88,  0.83,
-  #                     "_MiIitary Zambia",   0.8,  0.55,  0.74,  0.79,  0.82,
-  #                "Northwestern Province",  1.43,  1.04,  0.86,  0.91,  0.79
-  #                )
-
-
 # Function to calculate TX_CURR achievement from cumulative / targets
   calc_tx_curr <- function(.data){
     .data %>%
