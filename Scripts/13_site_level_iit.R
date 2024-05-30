@@ -23,10 +23,10 @@
       pattern = "SiteByIMs.*Zambia")
 
   # Grab metadata
-   get_metadata(file_path)
+   metadata <- get_metadata(site_path)
 
   # REF ID for plots
-    ref_id <- "5e198eac"
+   ref_id <- "5e198eac"
 
   # Functions
 
